@@ -55,8 +55,8 @@ class Game:
     def __init__(self, board):
         self.board = board
         self.players[0] = Player(1, self.board, "Marko")
-        self.players[1] = Player(2, self.board, "AI", True)
-        self.activePlayer = self.players[randint(0,1)]
+        self.players[1] = Player(2, self.board, "AI")
+        self.activePlayer = self.players[randint(0, 1)]
 
     def switchPlayer(self):
         if self.activePlayer == self.players[0]:

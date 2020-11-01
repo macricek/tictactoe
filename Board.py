@@ -10,6 +10,7 @@ GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 
+
 class Board:
     "Board class that contains all info about it"
     sizeOfBoard = 3
@@ -18,9 +19,8 @@ class Board:
     DISPLAY = None
     board = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]   #board
 
-    def __init__(self):
-        self.DISPLAY = self.drawEmptyBoard()
-        self.showWinner()
+    def __init__(self, board):
+        self.board = board
 
     def printBoard(self):
         print("BOARD")
@@ -118,6 +118,14 @@ class Board:
             return 2
         else:
             return 0
+
+
+class GraphicalBoard(Board):
+    def __init__(self, board):
+        #super.__init__(super, board)
+        self.DISPLAY = self.drawEmptyBoard()
+        self.showWinner()
+
 
     def drawEmptyBoard(self):
         pygame.init()

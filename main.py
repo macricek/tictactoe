@@ -5,9 +5,9 @@
 
 from pygame.locals import *
 import pygame, sys, Board, Game
+boardik = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
 
-
-board = Board.Board()
+board = Board.GraphicalBoard(boardik)
 board.printBoard()
 game = Game.Game(board)
 while True:
