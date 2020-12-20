@@ -1,6 +1,7 @@
 import Board
 import math
-from random import seed,randint
+from random import seed, randint
+from copy import copy, deepcopy
 
 
 class Player:
@@ -16,7 +17,11 @@ class Player:
         self.AI = AI
 
     def detectRect(self):
-        mx,my = self.board.detectClick()
+        mx, my = self.board.detectClick()
+        if (mx>=200 and mx <=300) and (my>=425 and my <=475):   #detected button new game
+            self.board.setWholeBoardToDefault()
+            print("New game!")
+            return -1, -1
         row = math.floor((my-100)/100)
         col = math.floor((mx-100)/100)
         if row >= 3 or col >= 3 or row < 0 or col < 0:
@@ -24,26 +29,90 @@ class Player:
         return row, col
 
     def makeMove(self):
+        row = -1
+        col = -1
         if not self.AI:
-            row, col = self.detectRect()
-            if row == -1:
-                control = 0
-            else:
-                control = 1
-            if control > 0:
-                control = self.board.fillNumInBoard(row,col,self.id)
-            if control:
-                self.board.drawSymbol(self.id, row, col)
-            return control
+            while row == -1 and col == -1:
+                row, col = self.detectRect()
         else:
-            self.findBestMove()
+            row, col = self.findBestMove()
+        if row == -1:
+            control = 0
+        else:
+            control = 1
+        if control > 0:
+            control = self.board.fillNumInBoard(row,col,self.id)
+        if control:
+            self.board.drawSymbol(self.id, row, col)
+        return control
 
 
     def findBestMove(self):
-        boardik = Board.MiniBoard(self.board)
-        boardik.fillNumInBoard(1 , 1 , 2)
-        boardik.printBoard()
-        return 1
+        boardik_ref = Board.Board(self.board.board)     #reference
+        nextmove = AI_Move(boardik_ref)
+        return nextmove.findBestMove()
+
+
+class AI_Move:
+    board = 0
+    posRow = -1
+    posCol = -1
+
+    def __init__(self,board):
+        self.board = deepcopy(board)
+
+    def minimax(self,level,max_status):
+        score, resultEval = self.evaluate(level)
+
+        if resultEval:
+            self.board.status = 0
+            return score
+
+        if max_status:
+            best = -1000
+            for i in range(0, 3):
+                for j in range(0, 3):
+                    if self.board.board[i][j] == 0:
+                        self.board.fillNumInBoard(i, j, 2)  #maximizer is ID 2
+                        best = max(best, self.minimax(level+1, not max_status))
+                        self.board.board[i][j] = 0
+            return best
+        else:
+            best = 1000
+            for i in range(0, 3):
+                for j in range(0, 3):
+                    if self.board.board[i][j] == 0:
+                        self.board.fillNumInBoard(i, j, 1)  # minimizer is ID 1
+                        best = min(best, self.minimax(level+1, not max_status))
+                        self.board.board[i][j] = 0
+            return best
+
+    def findBestMove(self):
+            best = -1000
+            for i in range(0, 3):
+                for j in range(0, 3):
+                    if self.board.board[i][j] == 0:
+                        self.board.fillNumInBoard(i, j, 2)  #maximizer is ID 1
+                        move = self.minimax(0, False)
+                        print("move: [", i, "] [", j, "] with score:", move, " best: ", best)
+                        self.board.board[i][j] = 0  #remove move
+                        if move > best:
+                            self.posCol = j
+                            self.posRow = i
+                            #print("Find new better move: [", i, "] [", j, "] with score:", move, " old: ", best)
+                            best = move
+            return self.posRow, self.posCol
+
+    def evaluate(self, level):
+        self.board.checkAll()   #check it first
+        if self.board.status == 1:
+            return -10 + level, True
+        elif self.board.status == 2:
+            return 10 - level, True
+        elif self.board.status == 3:
+            return 0, True
+        else:
+            return -1, False
 
 
 class Game:
@@ -55,7 +124,7 @@ class Game:
     def __init__(self, board):
         self.board = board
         self.players[0] = Player(1, self.board, "Marko")
-        self.players[1] = Player(2, self.board, "AI")
+        self.players[1] = Player(2, self.board, "AI", True) #True
         self.activePlayer = self.players[randint(0, 1)]
 
     def switchPlayer(self):
@@ -67,13 +136,14 @@ class Game:
             return 1
 
     def main(self):
-        while not self.isGameEnded():
+        while 1:
             control = 0
             while not control:
                 control = self.activePlayer.makeMove()
                 if not self.isGameEnded():
                     self.switchPlayer()
-        return self.activePlayer.name
+                else:
+                    self.board.detectClick()
 
     def dedicateWinner(self):
         if self.board.status == 1:

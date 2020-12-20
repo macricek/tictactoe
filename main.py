@@ -7,6 +7,7 @@ from pygame.locals import *
 import pygame, sys, Board, Game
 boardik = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
 
+
 board = Board.GraphicalBoard(boardik)
 board.printBoard()
 game = Game.Game(board)

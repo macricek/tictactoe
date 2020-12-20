@@ -33,8 +33,11 @@ class Board:
         if self.board[posR][posC] == 0:
             self.board[posR][posC] = num
             return 1
-        else:
-            return 0
+        return 0
+
+    def setWholeBoardToDefault(self):
+        self.board = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+        self.status = 0
 
     def pickRow(self,numOfRow):
         row = [0, 0, 0]
@@ -78,28 +81,44 @@ class Board:
         else:
             status = self.check(self.picksideDiagonal())
             if status != 0:
-                self.status = status;
+                self.status = status
 
     def checkForDraw(self):
-        ch = self.isThereFreeSpace()
-        if ch:
+        if not self.isThereFreeSpace():
             self.status = 3
 
     def isThereFreeSpace(self):
         for i in self.board:
             for j in i:
                 if j == 0:
-                    return False
-        return True
+                    return True
+        return False
+
+    def numOfFreeSpacesLeft(self):
+        num = 0
+        for i in self.board:
+            for j in i:
+                if j == 0:
+                    num += 1
+        return num
+
+    def findNextFreeSpace(self):
+        num = self.numOfFreeSpacesLeft()
+        if num > 0:
+            for i in self.board:
+                for j in i:
+                    if j == 0:
+                        return num, i, j
+        return num
 
     def checkAll(self):
-        self.checkForDraw()
-        if self.status == 0:
-            self.checkRows()
+        self.checkRows()
         if self.status == 0:
             self.checkCols()
         if self.status == 0:
             self.checkDiagonals()
+        if self.status == 0:
+            self.checkForDraw()
 
     def check(self, sequence):
         first = sequence[0]
@@ -122,10 +141,13 @@ class Board:
 
 class GraphicalBoard(Board):
     def __init__(self, board):
-        #super.__init__(super, board)
         self.DISPLAY = self.drawEmptyBoard()
         self.showWinner()
 
+    def setWholeBoardToDefault(self):
+        super().setWholeBoardToDefault()
+        self.DISPLAY = self.drawEmptyBoard()
+        self.showWinner()
 
     def drawEmptyBoard(self):
         pygame.init()
@@ -143,6 +165,14 @@ class GraphicalBoard(Board):
                 stx = i * 100 + 100
                 sty = j * 100 + 100
                 pygame.draw.rect(DISPLAY, BLACK, (stx, sty, 100, 100), 2)
+        pygame.draw.rect(DISPLAY, BLACK, (200, 425, 100, 50))
+        pygame.draw.rect(DISPLAY, WHITE, (205, 430, 90, 40))
+        font = pygame.font.Font('freesansbold.ttf', 12)
+        text = font.render('Play again', True, BLACK, WHITE)
+        textRect = text.get_rect()
+        textRect.center = (250, 450)
+        DISPLAY.blit(text, textRect)
+
         pygame.display.update()
         return DISPLAY
 
