@@ -35,10 +35,12 @@ class Player:
             while row == -1 and col == -1:
                 row, col = self.detectRect()
         else:
-            row, col = self.findBestMove()
-        if row == -1:
-            control = 0
-        else:
+            if self.board.numOfFreeSpacesLeft() == 9:
+                row = 0
+                col = 0
+            else:
+                row, col = self.findBestMove()
+        if row > -1:
             control = 1
         if control > 0:
             control = self.board.fillNumInBoard(row,col,self.id)
