@@ -122,10 +122,10 @@ class Game:
     activePlayer = Player(0, None, "A")
     winner = "None"
 
-    def __init__(self, board):
+    def __init__(self, board, val):
         self.board = board
         self.players[0] = Player(1, self.board, "Marko")
-        self.players[1] = Player(2, self.board, "AI", True) #True
+        self.players[1] = Player(2, self.board, "AI", val)
         self.activePlayer = self.players[randint(0, 1)]
 
     def switchPlayer(self):
