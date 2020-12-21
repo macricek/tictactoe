@@ -94,12 +94,11 @@ class AI_Move:
                     if self.board.board[i][j] == 0:
                         self.board.fillNumInBoard(i, j, 2)  #maximizer is ID 1
                         move = self.minimax(0, False)
-                        print("move: [", i, "] [", j, "] with score:", move, " best: ", best)
                         self.board.board[i][j] = 0  #remove move
                         if move > best:
                             self.posCol = j
                             self.posRow = i
-                            #print("Find new better move: [", i, "] [", j, "] with score:", move, " old: ", best)
+                            print("Find new better move: [", i, "] [", j, "] with score:", move, " old: ", best)
                             best = move
             return self.posRow, self.posCol
 
@@ -136,14 +135,12 @@ class Game:
             return 1
 
     def main(self):
-        while 1:
+        while not self.isGameEnded():
             control = 0
             while not control:
                 control = self.activePlayer.makeMove()
-                if not self.isGameEnded():
-                    self.switchPlayer()
-                else:
-                    self.board.detectClick()
+                self.switchPlayer()
+        self.activePlayer.detectRect()
 
     def dedicateWinner(self):
         if self.board.status == 1:
